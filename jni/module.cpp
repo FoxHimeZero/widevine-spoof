@@ -1,3 +1,4 @@
+#include <sys/types.h>
 #include "zygisk.hpp"
 #include <android/log.h>
 #include <dlfcn.h>
