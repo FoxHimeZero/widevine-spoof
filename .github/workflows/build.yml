@@ -1,0 +1,19 @@
+name: Build Zygisk
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r26b
+      - name: Build
+        run: |
+          cd jni
+          ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zygisk-libs
+          path: libs/**/*.so
