@@ -1,16 +1,46 @@
-LOCAL_PATH := $(call my-dir)
+name: Build Zygisk
+on: [push, workflow_dispatch]
 
-include $(CLEAR_VARS)
-LOCAL_MODULE := dobby
-LOCAL_SRC_FILES := dobby/lib/$(TARGET_ARCH_ABI)/libdobby.a
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
-include $(PREBUILT_STATIC_LIBRARY)
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-include $(CLEAR_VARS)
-LOCAL_MODULE := widevine-spoof
-LOCAL_SRC_FILES := module.cpp
-LOCAL_C_INCLUDES := $(LOCAL_PATH)
-LOCAL_STATIC_LIBRARIES := dobby
-LOCAL_LDLIBS := -llog -ldl -landroid -lmediandk
-LOCAL_CPPFLAGS := -std=c++17 -O2 -fvisibility=hidden
-include $(BUILD_SHARED_LIBRARY)
+      - name: Download Dobby prebuilt (arm64 only)
+        run: |
+          mkdir -p jni/dobby/lib/arm64-v8a
+          curl -fL -o jni/dobby/lib/arm64-v8a/libdobby.a \
+            https://github.com/3equals3/DobbyHook/raw/main/arm64-v8a/libdobby.a
+          curl -fL -o jni/Dobby.h \
+            https://github.com/3equals3/DobbyHook/raw/main/Dobby.h
+          echo "=== 下载文件大小 ==="
+          ls -la jni/dobby/lib/arm64-v8a/libdobby.a
+          ls -la jni/Dobby.h
+
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r26b
+
+      - name: Build with ndk-build
+        run: |
+          cd jni
+          ndk-build \
+            NDK_PROJECT_PATH=. \
+            APP_BUILD_SCRIPT=Android.mk \
+            APP_ABI=arm64-v8a \
+            APP_PLATFORM=android-29 \
+            APP_STL=c++_static \
+            APP_CPPFLAGS="-fexceptions -frtti" \
+            V=1
+
+      - name: Verify output
+        run: |
+          echo "=== 编译产物 ==="
+          find libs -name "*.so" -exec ls -la {} \;
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zygisk-libs
+          path: libs/**/*.so
