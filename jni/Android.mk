@@ -12,5 +12,5 @@ LOCAL_SRC_FILES := module.cpp
 LOCAL_C_INCLUDES := $(LOCAL_PATH)
 LOCAL_STATIC_LIBRARIES := dobby
 LOCAL_LDLIBS := -llog -ldl -landroid -lmediandk
-LOCAL_CPPFLAGS := -std=c++17 -fno-exceptions -fno-rtti -O2 -fvisibility=hidden
+LOCAL_CPPFLAGS := -std=c++17 -O2 -fvisibility=hidden
 include $(BUILD_SHARED_LIBRARY)
