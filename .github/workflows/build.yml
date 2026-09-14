@@ -6,14 +6,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: nttld/setup-ndk@v1
+
+      - name: Download Dobby prebuilt
+        run: |
+          mkdir -p jni/dobby/lib/arm64-v8a jni/dobby/lib/armeabi-v7a
+          # 下载 arm64-v8a
+          curl -L -o jni/dobby/lib/arm64-v8a/libdobby.a \
+            https://github.com/3equals3/DobbyHook/raw/main/arm64-v8a/libdobby.a
+          # 下载 armeabi-v7a
+          curl -L -o jni/dobby/lib/armeabi-v7a/libdobby.a \
+            https://github.com/3equals3/DobbyHook/raw/main/armeabi-v7a/libdobby.a
+          # 下载头文件
+          curl -L -o jni/Dobby.h \
+            https://github.com/3equals3/DobbyHook/raw/main/Dobby.h
+
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1
         with:
           ndk-version: r26b
-      - name: Build
+
+      - name: Build with ndk-build
         run: |
           cd jni
           ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk
-      - uses: actions/upload-artifact@v4
+
+      - name: Upload .so artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: zygisk-libs
           path: libs/**/*.so
