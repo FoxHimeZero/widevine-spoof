@@ -38,9 +38,9 @@ jobs:
       - name: Verify output
         run: |
           echo "=== 编译产物 ==="
-          find libs -name "*.so" -exec ls -la {} \;
+          find jni/libs -name "*.so" -exec ls -la {} \;
 
       - uses: actions/upload-artifact@v4
         with:
           name: zygisk-libs
-          path: libs/**/*.so
+          path: jni/libs/**/*.so
