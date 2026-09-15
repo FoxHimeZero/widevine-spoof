@@ -20,7 +20,7 @@
 using namespace zygisk;
 
 static const char *kTargetProcess = "android.hardware.drm-service.widevine";
-static const char *kIdFile = "/data/adb/widevine-spoof/id";
+static const char *kIdFile = "/data/local/tmp/widevine-spoof/id";
 static std::vector<uint8_t> g_fakeId;
 
 // 原始函数指针（Dobby 会填充）
