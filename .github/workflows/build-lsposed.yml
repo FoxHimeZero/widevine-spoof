@@ -1,1 +1,31 @@
+name: Build LSPosed APK
+on: [push, workflow_dispatch]
 
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build with Gradle
+        run: |
+          cd lsposed
+          gradle wrapper --gradle-version 8.2
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Verify APK
+        run: |
+          find lsposed/app/build/outputs/apk -name "*.apk" -exec ls -la {} \;
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lsposed-apk
+          path: lsposed/app/build/outputs/apk/release/*.apk
